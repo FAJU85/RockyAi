@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rocky-ai-config
+  namespace: rocky-ai
+data:
+  # Database configuration
+  DATABASE_URL: "postgresql://postgres:postgres@postgres-service:5432/rockyai"
+  
+  # Redis configuration
+  REDIS_URL: "redis://redis-service:6379/0"
+  
+  # DMR configuration
+  DMR_URL: "http://dmr-service:8001"
+  
+  # Security configuration
+  JWT_SECRET_KEY: "your-jwt-secret-key-here"
+  JWT_ALGORITHM: "HS256"
+  JWT_ACCESS_TOKEN_EXPIRE_MINUTES: "30"
+  JWT_REFRESH_TOKEN_EXPIRE_DAYS: "7"
+  
+  # CORS configuration
+  SECURITY_ALLOWED_ORIGINS: '["http://localhost:3000", "https://rockyai.com"]'
+  SECURITY_ALLOWED_IPS: '[]'
+  SECURITY_BLOCKED_IPS: '[]'
+  
+  # Logging configuration
+  LOG_LEVEL: "INFO"
+  LOG_FORMAT: "json"
+  
+  # Performance configuration
+  WORKERS: "4"
+  MAX_CONNECTIONS: "100"
+  TIMEOUT: "30"
+  
+  # Monitoring configuration
+  METRICS_ENABLED: "true"
+  HEALTH_CHECK_INTERVAL: "30"
+  
+  # File upload configuration
+  MAX_FILE_SIZE_MB: "10"
+  UPLOAD_DIR: "/app/uploads"
+  
+  # Cache configuration
+  CACHE_TTL_SECONDS: "3600"
+  CACHE_MAX_MEMORY_MB: "100"

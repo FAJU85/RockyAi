@@ -1,0 +1,54 @@
+<svg width="200" height="80" viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg">
+  <!-- Rocky AI Logo - Futuristic Metallic R -->
+  <defs>
+    <linearGradient id="metallicGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#E8E8E8;stop-opacity:1" />
+      <stop offset="30%" style="stop-color:#C0C0C0;stop-opacity:1" />
+      <stop offset="70%" style="stop-color:#808080;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#404040;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="blueGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00BFFF;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#0066CC;stop-opacity:0.6" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge> 
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Main R Structure -->
+  <g transform="translate(20, 10)">
+    <!-- Vertical bar of R -->
+    <rect x="0" y="0" width="12" height="50" fill="url(#metallicGradient)" rx="2"/>
+    
+    <!-- Top horizontal bar of R -->
+    <rect x="12" y="0" width="25" height="12" fill="url(#metallicGradient)" rx="2"/>
+    
+    <!-- Diagonal bar of R -->
+    <rect x="25" y="12" width="8" height="25" fill="url(#metallicGradient)" rx="2" transform="rotate(45 29 24.5)"/>
+    
+    <!-- Bottom horizontal bar of R -->
+    <rect x="12" y="25" width="20" height="8" fill="url(#metallicGradient)" rx="2"/>
+    
+    <!-- Rivets/Screws -->
+    <circle cx="6" cy="8" r="2" fill="#606060"/>
+    <circle cx="6" cy="25" r="2" fill="#606060"/>
+    <circle cx="6" cy="42" r="2" fill="#606060"/>
+    <circle cx="20" cy="6" r="2" fill="#606060"/>
+    <circle cx="30" cy="6" r="2" fill="#606060"/>
+    <circle cx="20" cy="27" r="2" fill="#606060"/>
+    <circle cx="30" cy="27" r="2" fill="#606060"/>
+    
+    <!-- Blue glowing accents -->
+    <rect x="0" y="45" width="12" height="3" fill="url(#blueGlow)" rx="1" filter="url(#glow)"/>
+    <rect x="25" y="12" width="3" height="8" fill="url(#blueGlow)" rx="1" transform="rotate(45 26.5 16)" filter="url(#glow)"/>
+    <rect x="12" y="25" width="8" height="3" fill="url(#blueGlow)" rx="1" filter="url(#glow)"/>
+  </g>
+  
+  <!-- Rocky AI Text -->
+  <text x="100" y="55" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#404040" text-anchor="middle">ROCKY AI</text>
+</svg>

@@ -1,0 +1,181 @@
+﻿version: '3.9'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: rocky_postgres
+    environment:
+      POSTGRES_DB: rocky_ai
+      POSTGRES_USER: rocky
+      POSTGRES_PASSWORD: secure_password_change_in_production
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    ports:
+      - "5432:5432"
+    networks:
+      - rocky_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rocky -d rocky_ai"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: rocky_redis
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - rocky_net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Celery Worker
+  celery:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    container_name: rocky_celery
+    command: celery -A app.celery worker --loglevel=info
+    environment:
+      - PYTHONUNBUFFERED=1
+      - ROCKY_ENV=local
+      - DATABASE_URL=postgresql://rocky:secure_password_change_in_production@postgres:5432/rocky_ai
+      - REDIS_URL=redis://redis:6379/0
+      - DMR_BASE_URL=http://dmr:11434
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      dmr:
+        condition: service_started
+    networks:
+      - rocky_net
+    volumes:
+      - ./data:/app/data
+
+  # Main API
+  api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    container_name: rocky_api
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - ROCKY_ENV=local
+      - DATABASE_URL=postgresql://rocky:secure_password_change_in_production@postgres:5432/rocky_ai
+      - REDIS_URL=redis://redis:6379/0
+      - DMR_BASE_URL=http://dmr:11434
+      - SECRET_KEY=your-secret-key-change-in-production
+      - LOG_LEVEL=INFO
+      - ENABLE_CACHING=true
+      - ENABLE_DATABASE=true
+      - ENABLE_EXECUTORS=true
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      dmr:
+        condition: service_started
+    networks:
+      - rocky_net
+    volumes:
+      - ./data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # React UI
+  ui:
+    build:
+      context: ./apps/ui
+      dockerfile: Dockerfile
+    container_name: rocky_ui
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:8000
+    networks:
+      - rocky_net
+    depends_on:
+      api:
+        condition: service_healthy
+
+  # Docker Model Runner
+  dmr:
+    image: ghcr.io/ai-dock/docker-model-runner:latest
+    container_name: rocky_dmr
+    volumes:
+      - ./services/dmr/config.yaml:/app/config.yaml:ro
+    environment:
+      - DMR_CONFIG=/app/config.yaml
+    ports:
+      - "11434:11434"
+    networks:
+      - rocky_net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Python Executor
+  python-executor:
+    build:
+      context: ./services/runners/python
+      dockerfile: Dockerfile
+    container_name: rocky_python_executor
+    environment:
+      - PYTHONUNBUFFERED=1
+    networks:
+      - rocky_net
+    volumes:
+      - ./data:/app/data
+      - python_executor_data:/tmp/rocky_executors
+    profiles:
+      - executors
+
+  # R Executor
+  r-executor:
+    build:
+      context: ./services/runners/r
+      dockerfile: Dockerfile
+    container_name: rocky_r_executor
+    environment:
+      - R_ENABLE_JIT=3
+    networks:
+      - rocky_net
+    volumes:
+      - ./data:/app/data
+      - r_executor_data:/tmp/rocky_executors
+    profiles:
+      - executors
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  python_executor_data:
+    driver: local
+  r_executor_data:
+    driver: local
+
+networks:
+  rocky_net:
+    driver: bridge

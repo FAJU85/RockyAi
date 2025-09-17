@@ -1,0 +1,36 @@
+apiVersion: v2
+name: rocky-ai
+description: A Helm chart for Rocky AI - Advanced Data Analysis Platform
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+home: https://github.com/your-org/rocky-ai
+sources:
+  - https://github.com/your-org/rocky-ai
+maintainers:
+  - name: Rocky AI Team
+    email: team@rockyai.com
+keywords:
+  - data-analysis
+  - ai
+  - machine-learning
+  - analytics
+  - python
+  - react
+dependencies:
+  - name: postgresql
+    version: 12.1.2
+    repository: https://charts.bitnami.com/bitnami
+    condition: postgresql.enabled
+  - name: redis
+    version: 17.3.7
+    repository: https://charts.bitnami.com/bitnami
+    condition: redis.enabled
+  - name: prometheus
+    version: 19.6.1
+    repository: https://prometheus-community.github.io/helm-charts
+    condition: monitoring.prometheus.enabled
+  - name: grafana
+    version: 6.50.7
+    repository: https://grafana.github.io/helm-charts
+    condition: monitoring.grafana.enabled
