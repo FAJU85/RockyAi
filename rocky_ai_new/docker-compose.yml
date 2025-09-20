@@ -1,0 +1,12 @@
+version: "3.9"
+services:
+  rocky:
+    build: .
+    container_name: rocky-deepseek
+    environment:
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
+      - PORT=8000
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
